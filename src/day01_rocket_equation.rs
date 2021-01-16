@@ -19,7 +19,7 @@ fn main() {
 
     let input: String = fs::read_to_string(&args[1]).expect("couldn't read file");
     let lines = input.split_whitespace().map(|s| {
-        s.parse::<i32>().expect(&format!("invalid int {}", &s))
+        s.parse::<i32>().unwrap_or_else(|_| panic!("invalid int {}", &s))
     }).collect();
     println!("{}", total_fuel_requirement(lines));
 }
