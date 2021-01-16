@@ -4,10 +4,16 @@ version = "0.1.0"
 authors = ["Miriam Zimmerman <miriam@mutexlox.com>"]
 edition = "2018"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
 
 [[bin]]
 name = "day01"
 path = "src/day01_rocket_equation.rs"
+
+[[bin]]
+name = "day02"
+path = "src/day_02_program_alarm.rs"
+
+[lib]
+name = "intcode"
+path = "src/intcode.rs"
