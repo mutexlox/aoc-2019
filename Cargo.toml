@@ -12,7 +12,12 @@ path = "src/day01_rocket_equation.rs"
 
 [[bin]]
 name = "day02"
-path = "src/day_02_program_alarm.rs"
+path = "src/day02_program_alarm.rs"
+
+[[bin]]
+name = "day03"
+path = "src/day03_crossed_wires.rs"
+
 
 [lib]
 name = "intcode"
