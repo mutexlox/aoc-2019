@@ -20,18 +20,13 @@ fn fuel_to_launch_counting_fuel(mass: i32) -> i32 {
     base + additional
 }
 
-fn total_fuel_requirement(module_masses: &[i32]) -> i32 {
+fn total_fuel_requirement<F>(module_masses: &[i32], calc_fuel: F) -> i32
+where
+    F: Fn(i32) -> i32,
+{
     let mut out = 0;
     for mass in module_masses {
-        out += fuel_to_launch(*mass);
-    }
-    out
-}
-
-fn total_fuel_requirement_counting_fuel(module_masses: &[i32]) -> i32 {
-    let mut out = 0;
-    for mass in module_masses {
-        out += fuel_to_launch_counting_fuel(*mass);
+        out += calc_fuel(*mass);
     }
     out
 }
@@ -48,6 +43,9 @@ fn main() {
                 .unwrap_or_else(|_| panic!("invalid int {}", &s))
         })
         .collect::<Vec<_>>();
-    println!("{}", total_fuel_requirement(&lines));
-    println!("{}", total_fuel_requirement_counting_fuel(&lines));
+    println!("{}", total_fuel_requirement(&lines, fuel_to_launch));
+    println!(
+        "{}",
+        total_fuel_requirement(&lines, fuel_to_launch_counting_fuel)
+    );
 }
