@@ -26,6 +26,10 @@ path = "src/day04_container.rs"
 name = "day05"
 path = "src/day05_asteroids.rs"
 
+[[bin]]
+name = "day06"
+path = "src/day06_orbit.rs"
+
 [lib]
 name = "intcode"
 path = "src/intcode.rs"
