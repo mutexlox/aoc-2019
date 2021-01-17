@@ -4,7 +4,7 @@ use crate::intcode::eval;
 use std::env;
 use std::fs;
 
-fn find_noun_and_verb(ints: &[usize]) -> (usize, usize) {
+fn find_noun_and_verb(ints: &[i32]) -> (i32, i32) {
     for i in 0..100 {
         for j in 0..100 {
             let mut c = ints.to_owned();
@@ -27,7 +27,7 @@ fn main() {
         .split(',')
         .map(|s| {
             s.trim()
-                .parse::<usize>()
+                .parse::<i32>()
                 .unwrap_or_else(|_| panic!("invalid int {}", s))
         })
         .collect::<Vec<_>>();
