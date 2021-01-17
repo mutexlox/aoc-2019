@@ -18,6 +18,9 @@ path = "src/day02_program_alarm.rs"
 name = "day03"
 path = "src/day03_crossed_wires.rs"
 
+[[bin]]
+name = "day04"
+path = "src/day04_container.rs"
 
 [lib]
 name = "intcode"
