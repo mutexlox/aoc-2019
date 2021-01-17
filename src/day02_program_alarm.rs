@@ -23,14 +23,7 @@ fn main() {
     assert_eq!(args.len(), 2);
 
     let input: String = fs::read_to_string(&args[1]).expect("couldn't read file");
-    let ints = input
-        .split(',')
-        .map(|s| {
-            s.trim()
-                .parse::<i32>()
-                .unwrap_or_else(|_| panic!("invalid int {}", s))
-        })
-        .collect::<Vec<_>>();
+    let ints = intcode::parse(&input);
     let mut mem = ints.clone();
     mem[1] = 12;
     mem[2] = 2;
