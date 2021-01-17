@@ -2,10 +2,10 @@ use std::env;
 use std::fs;
 
 fn matches_rules(mut x: i32, min: i32, max: i32) -> bool {
-    if x < 100_000 || x > 999_999 {
+    if !(100_000..=999_999).contains(&x) {
         return false;
     }
-    if x < min || x > max {
+    if !(min..=max).contains(&x) {
         return false;
     }
     let mut last = x % 10;
@@ -72,7 +72,7 @@ fn main() {
     assert_eq!(args.len(), 2);
 
     let input: String = fs::read_to_string(&args[1]).expect("couldn't read file");
-    let mut range = input.trim().split("-").map(|s| s.parse::<i32>().unwrap());
+    let mut range = input.trim().split('-').map(|s| s.parse::<i32>().unwrap());
     let min = range.next().unwrap();
     let max = range.next().unwrap();
     println!("{}", num_valid_pass(min, max));
