@@ -12,6 +12,7 @@ pub fn parse(input: &str) -> Vec<i32> {
 pub fn eval(ints: &mut [i32]) -> i32 {
     eval_with_input(ints, &[], &mut Vec::new())
 }
+
 pub fn get_param(mode: i32, param: i32, mem: &[i32]) -> i32 {
     match mode {
         0 => mem[param as usize],

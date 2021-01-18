@@ -10,7 +10,8 @@ fn find_noun_and_verb(ints: &[i32]) -> (i32, i32) {
             let mut c = ints.to_owned();
             c[1] = i;
             c[2] = j;
-            if eval(&mut c) == 19690720 {
+            eval(&mut c);
+            if c[0] == 19690720 {
                 return (i, j);
             }
         }
@@ -28,7 +29,8 @@ fn main() {
     mem[1] = 12;
     mem[2] = 2;
 
-    println!("{}", eval(&mut mem));
+    eval(&mut mem);
+    println!("{}", mem[0]);
     let (noun, verb) = find_noun_and_verb(&ints);
     println!("{}", 100 * noun + verb);
 }
