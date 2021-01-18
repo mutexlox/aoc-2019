@@ -29,13 +29,13 @@ fn get_frontmost_pixels(layers: &[Vec<u32>]) -> Vec<u32> {
     for i in 0..HEIGHT {
         for j in 0..WIDTH {
             let mut k: usize = 0;
-            while k < layers.len() && layers[k][i * HEIGHT + j] == 2 {
+            while k < layers.len() && layers[k][i * WIDTH + j] == 2 {
                 k += 1;
             }
             if k == layers.len() {
                 panic!("all transparent");
             }
-            out.push(layers[k][i * HEIGHT + j]);
+            out.push(layers[k][i * WIDTH + j]);
         }
     }
     out
@@ -46,10 +46,10 @@ fn print_picture(frontmost: &[u32]) {
         for j in 0..WIDTH {
             print!(
                 "{}",
-                match frontmost[i * HEIGHT + j] {
+                match frontmost[i * WIDTH + j] {
                     1 => 'X',
                     0 => ' ',
-                    _ => panic!("unexpected digit {}", frontmost[i * HEIGHT + j]),
+                    _ => panic!("unexpected digit {}", frontmost[i * WIDTH + j]),
                 }
             );
         }
