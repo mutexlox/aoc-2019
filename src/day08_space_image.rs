@@ -4,7 +4,7 @@ use std::fs;
 const WIDTH: usize = 25;
 const HEIGHT: usize = 6;
 
-fn find_fewest_zeros(layers: &Vec<Vec<u32>>) -> usize {
+fn find_fewest_zeros(layers: &[Vec<u32>]) -> usize {
     let mut min_zeros = None;
     let mut ones_times_twos = 0;
     for l in layers.iter() {
@@ -24,7 +24,7 @@ fn find_fewest_zeros(layers: &Vec<Vec<u32>>) -> usize {
     ones_times_twos
 }
 
-fn get_frontmost_pixels(layers: &Vec<Vec<u32>>) -> Vec<u32> {
+fn get_frontmost_pixels(layers: &[Vec<u32>]) -> Vec<u32> {
     let mut out = Vec::new();
     for i in 0..HEIGHT {
         for j in 0..WIDTH {
@@ -41,7 +41,7 @@ fn get_frontmost_pixels(layers: &Vec<Vec<u32>>) -> Vec<u32> {
     out
 }
 
-fn print_picture(frontmost: &Vec<u32>) {
+fn print_picture(frontmost: &[u32]) {
     for i in 0..HEIGHT {
         for j in 0..WIDTH {
             print!(
