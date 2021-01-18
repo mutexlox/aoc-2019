@@ -9,8 +9,8 @@ pub fn parse(input: &str) -> Vec<i32> {
         .collect::<Vec<_>>()
 }
 
-pub fn eval(ints: &mut [i32]) -> i32 {
-    eval_with_input(ints, &[], &mut Vec::new())
+pub fn eval(ints: &mut [i32]) {
+    eval_with_input(ints, &[], &mut Vec::new());
 }
 
 pub fn get_param(mode: i32, param: i32, mem: &[i32]) -> i32 {
@@ -33,8 +33,17 @@ pub fn get_params(mut opcode: i32, params: &[i32], mem: &[i32]) -> Vec<i32> {
     out
 }
 
-pub fn eval_with_input(ints: &mut [i32], inputs: &[i32], outputs: &mut Vec<i32>) -> i32 {
-    let mut pc = 0;
+pub fn eval_with_input(ints: &mut [i32], inputs: &[i32], outputs: &mut Vec<i32>) {
+    eval_with_input_and_pc(ints, inputs, outputs, None);
+}
+// Returns pc at which to resume execution, if any
+pub fn eval_with_input_and_pc(
+    ints: &mut [i32],
+    inputs: &[i32],
+    outputs: &mut Vec<i32>,
+    pc_maybe: Option<usize>,
+) -> Option<usize> {
+    let mut pc = pc_maybe.unwrap_or(0);
     let mut input_idx = 0;
     while pc < ints.len() {
         match ints[pc] % 100 {
@@ -55,6 +64,9 @@ pub fn eval_with_input(ints: &mut [i32], inputs: &[i32], outputs: &mut Vec<i32>)
             3 => {
                 // get input
                 assert!(ints[pc] < 100, "unexpected immediate output of 3");
+                if input_idx >= inputs.len() {
+                    return Some(pc);
+                }
                 ints[ints[pc + 1] as usize] = inputs[input_idx];
                 input_idx += 1;
                 pc += 2;
@@ -102,5 +114,5 @@ pub fn eval_with_input(ints: &mut [i32], inputs: &[i32], outputs: &mut Vec<i32>)
         }
     }
 
-    ints[0]
+    None
 }
