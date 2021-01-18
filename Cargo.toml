@@ -5,6 +5,7 @@ authors = ["Miriam Zimmerman <miriam@mutexlox.com>"]
 edition = "2018"
 
 [dependencies]
+itertools = "*"
 
 [[bin]]
 name = "day01"
@@ -29,6 +30,10 @@ path = "src/day05_asteroids.rs"
 [[bin]]
 name = "day06"
 path = "src/day06_orbit.rs"
+
+[[bin]]
+name = "day07"
+path = "src/day07_amplifier.rs"
 
 [lib]
 name = "intcode"
