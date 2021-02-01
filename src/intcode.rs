@@ -1,3 +1,6 @@
+use std::sync::mpsc;
+use std::sync::mpsc::{Receiver, Sender};
+
 pub fn parse(input: &str) -> Vec<i32> {
     input
         .split(',')
@@ -10,7 +13,8 @@ pub fn parse(input: &str) -> Vec<i32> {
 }
 
 pub fn eval(ints: &mut [i32]) {
-    eval_with_input(ints, &[], &mut Vec::new());
+    let (sender, reciever) = mpsc::channel();
+    eval_with_input(ints, reciever, sender);
 }
 
 pub fn get_param(mode: i32, param: i32, mem: &[i32]) -> i32 {
@@ -33,18 +37,12 @@ pub fn get_params(mut opcode: i32, params: &[i32], mem: &[i32]) -> Vec<i32> {
     out
 }
 
-pub fn eval_with_input(ints: &mut [i32], inputs: &[i32], outputs: &mut Vec<i32>) {
-    eval_with_input_and_pc(ints, inputs, outputs, None);
-}
-// Returns pc at which to resume execution, if any
-pub fn eval_with_input_and_pc(
+pub fn eval_with_input(
     ints: &mut [i32],
-    inputs: &[i32],
-    outputs: &mut Vec<i32>,
-    pc_maybe: Option<usize>,
-) -> Option<usize> {
-    let mut pc = pc_maybe.unwrap_or(0);
-    let mut input_idx = 0;
+    input: Receiver<i32>,
+    output: Sender<i32>,
+) -> Receiver<i32> {
+    let mut pc = 0;
     while pc < ints.len() {
         match ints[pc] % 100 {
             1 => {
@@ -64,17 +62,13 @@ pub fn eval_with_input_and_pc(
             3 => {
                 // get input
                 assert!(ints[pc] < 100, "unexpected immediate output of 3");
-                if input_idx >= inputs.len() {
-                    return Some(pc);
-                }
-                ints[ints[pc + 1] as usize] = inputs[input_idx];
-                input_idx += 1;
+                ints[ints[pc + 1] as usize] = input.recv().unwrap();
                 pc += 2;
             }
             4 => {
                 // output
                 let param = get_params(ints[pc], &ints[pc + 1..pc + 2], ints)[0];
-                outputs.push(param);
+                output.send(param).unwrap();
                 pc += 2;
             }
             5 => {
@@ -113,6 +107,6 @@ pub fn eval_with_input_and_pc(
             _ => panic!("invalid opcode {} at index {}", ints[pc], pc),
         }
     }
-
-    None
+    // Let caller continue to read it
+    input
 }

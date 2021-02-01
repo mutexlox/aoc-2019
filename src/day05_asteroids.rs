@@ -1,5 +1,6 @@
 use std::env;
 use std::fs;
+use std::sync::mpsc;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -9,21 +10,19 @@ fn main() {
     let mut ints = intcode::parse(&input);
     let mut mem = ints.clone();
 
-    let mut inputs = vec![1];
-    let mut outputs = Vec::new();
+    let (in_sender, in_reciever) = mpsc::channel();
+    in_sender.send(1).unwrap();
+    let (out_sender, out_reciever) = mpsc::channel();
 
-    intcode::eval_with_input(&mut mem, &inputs, &mut outputs);
-    for (i, out) in outputs.iter().enumerate() {
-        if *out != 0 {
-            if i != outputs.len() - 1 {
-                panic!("failed at index {}; code {}", i, out);
-            } else {
-                println!("{}", out)
-            }
+    intcode::eval_with_input(&mut mem, in_reciever, out_sender);
+    for out in out_reciever.iter() {
+        if out != 0 {
+            println!("{}", out)
         }
     }
-    inputs = vec![5];
-    outputs = Vec::new();
-    intcode::eval_with_input(&mut ints, &inputs, &mut outputs);
-    println!("{}", outputs[0]);
+    let (in_sender, in_reciever) = mpsc::channel();
+    let (out_sender, out_reciever) = mpsc::channel();
+    in_sender.send(5).unwrap();
+    intcode::eval_with_input(&mut ints, in_reciever, out_sender);
+    println!("{}", out_reciever.recv().unwrap());
 }
