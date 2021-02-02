@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::env;
 use std::fs;
 use std::sync::mpsc;
@@ -6,7 +7,7 @@ use std::thread;
 
 use itertools::Itertools;
 
-fn max_without_loop(ints: &[i32]) -> i32 {
+fn max_without_loop(ints: &HashMap<usize, i64>) -> i64 {
     let inputs = (0..5).permutations(5);
     let mut max = None;
     for inp in inputs {
@@ -33,7 +34,7 @@ fn max_without_loop(ints: &[i32]) -> i32 {
     max.unwrap()
 }
 
-fn max_with_loop(ints: &[i32]) -> i32 {
+fn max_with_loop(ints: &HashMap<usize, i64>) -> i64 {
     let inputs = (5..10).permutations(5);
 
     let mut max = None;
