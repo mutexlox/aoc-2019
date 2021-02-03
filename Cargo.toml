@@ -43,6 +43,10 @@ path = "src/day08_space_image.rs"
 name = "day09"
 path = "src/day09_sensor_boost.rs"
 
+[[bin]]
+name = "day10"
+path = "src/day10_asteroid_visible.rs"
+
 [lib]
 name = "intcode"
 path = "src/intcode.rs"
