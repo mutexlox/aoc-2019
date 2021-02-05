@@ -52,6 +52,10 @@ path = "src/day10_asteroid_visible.rs"
 name = "day11"
 path = "src/day11_paint_intcode.rs"
 
+[[bin]]
+name = "day12"
+path = "src/day12_nbodies.rs"
+
 [lib]
 name = "intcode"
 path = "src/intcode.rs"
