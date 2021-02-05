@@ -1,30 +1,31 @@
+use std::cmp::Ordering;
+use std::collections::HashSet;
 use std::env;
 use std::fs;
-use std::collections::HashSet;
 
-fn update_velocities(positions: &Vec<Vec<i64>>, velocities: &mut Vec<Vec<i64>>) {
+fn update_velocities(positions: &[Vec<i64>], velocities: &mut Vec<Vec<i64>>) {
     for (i, p1) in positions.iter().enumerate() {
-        for j in 0..positions.len() {
+        for p2 in positions {
             for (k, val) in p1.iter().enumerate() {
-                if *val < positions[j][k] {
-                    velocities[i][k] += 1;
-                } else if *val > positions[j][k] {
-                    velocities[i][k] -= 1;
+                velocities[i][k] += match val.cmp(&p2[k]) {
+                    Ordering::Less =>  1,
+                    Ordering::Greater => -1,
+                    Ordering::Equal => 0,
                 }
             }
         }
     }
 }
 
-fn update_positions(positions: &mut Vec<Vec<i64>>, velocities: &Vec<Vec<i64>>) {
+fn update_positions(positions: &mut Vec<Vec<i64>>, velocities: &[Vec<i64>]) {
     for (p, v) in positions.iter_mut().zip(velocities.iter()) {
         for (i, coord) in p.iter_mut().enumerate() {
-            *coord +=  v[i];
+            *coord += v[i];
         }
     }
 }
 
-fn compute_energy(positions: &Vec<Vec<i64>>, velocities: &Vec<Vec<i64>>) -> i64 {
+fn compute_energy(positions: &[Vec<i64>], velocities: &[Vec<i64>]) -> i64 {
     let mut energy = 0;
     for (i, p) in positions.iter().enumerate() {
         let mut potential_energy = 0;
@@ -67,10 +68,10 @@ fn lcm(x: i64, y: i64) -> i64 {
     (x * y).abs() / gcd(x, y)
 }
 
-fn lcm_arr(v: &[i64]) -> i64 {
-    let mut acc = v[0];
-    for i in 1..v.len() {
-        acc = lcm(acc, v[i]);
+fn lcm_arr(vels: &[i64]) -> i64 {
+    let mut acc = vels[0];
+    for v in vels.iter().skip(1) {
+        acc = lcm(acc, *v);
     }
     acc
 }
@@ -81,7 +82,8 @@ fn steps_til_repeat(positions: &mut Vec<Vec<i64>>) -> i64 {
     let mut velocities = Vec::new();
 
     // periods for each axis.
-    let mut seen: [HashSet<(Vec<i64>, Vec<i64>)>; 3] = [HashSet::new(), HashSet::new(), HashSet::new()];
+    let mut seen: [HashSet<(Vec<i64>, Vec<i64>)>; 3] =
+        [HashSet::new(), HashSet::new(), HashSet::new()];
     let mut periods = [0, 0, 0];
 
     for _ in positions.iter() {
