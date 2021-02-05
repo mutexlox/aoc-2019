@@ -96,7 +96,6 @@ fn play_game(ints: &HashMap<usize, i64>) -> i64 {
         let x = match x_or {
             Ok(v) => v,
             Err(_) => {
-                // display_grid(&grid);
                 match paddle_x.cmp(&ball_x) {
                     Ordering::Less => in_sender.send(1).unwrap(), // tilt right
                     Ordering::Greater => in_sender.send(-1).unwrap(), // tilt left
@@ -123,6 +122,7 @@ fn play_game(ints: &HashMap<usize, i64>) -> i64 {
         }
     }
     child.join().unwrap();
+    display_grid(&grid);
     score
 }
 
