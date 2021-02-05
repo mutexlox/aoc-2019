@@ -56,6 +56,10 @@ path = "src/day11_paint_intcode.rs"
 name = "day12"
 path = "src/day12_nbodies.rs"
 
+[[bin]]
+name = "day13"
+path = "src/day13_intcode_game.rs"
+
 [lib]
 name = "intcode"
 path = "src/intcode.rs"
