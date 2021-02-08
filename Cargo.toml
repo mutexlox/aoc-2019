@@ -60,6 +60,14 @@ path = "src/day12_nbodies.rs"
 name = "day13"
 path = "src/day13_intcode_game.rs"
 
+[[bin]]
+name = "day14"
+path = "src/day14_stoichiometry.rs"
+
+[[bin]]
+name = "day15"
+path = "src/day15_oxygen.rs"
+
 [lib]
 name = "intcode"
 path = "src/intcode.rs"
