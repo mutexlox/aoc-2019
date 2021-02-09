@@ -8,7 +8,7 @@ fn update_velocities(positions: &[Vec<i64>], velocities: &mut Vec<Vec<i64>>) {
         for p2 in positions {
             for (k, val) in p1.iter().enumerate() {
                 velocities[i][k] += match val.cmp(&p2[k]) {
-                    Ordering::Less =>  1,
+                    Ordering::Less => 1,
                     Ordering::Greater => -1,
                     Ordering::Equal => 0,
                 }
