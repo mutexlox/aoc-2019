@@ -7,6 +7,7 @@ edition = "2018"
 [dependencies]
 itertools = "*"
 float_eq = "0.5.0"
+threadpool = "1.8.1"
 
 [[bin]]
 name = "day01"
@@ -67,6 +68,10 @@ path = "src/day14_stoichiometry.rs"
 [[bin]]
 name = "day15"
 path = "src/day15_oxygen.rs"
+
+[[bin]]
+name = "day16"
+path = "src/day16_fft.rs"
 
 [lib]
 name = "intcode"
