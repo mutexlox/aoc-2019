@@ -72,6 +72,10 @@ path = "src/day15_oxygen.rs"
 name = "day16"
 path = "src/day16_fft.rs"
 
+[[bin]]
+name = "day17"
+path = "src/day17_scaffolding.rs"
+
 [lib]
 name = "intcode"
 path = "src/intcode.rs"
