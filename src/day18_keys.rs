@@ -9,7 +9,7 @@ enum Tile {
     Wall,
     Door(char),
     Key(char),
-    Me,
+    Entrance,
 }
 
 fn get_neighbors(map: &[Vec<Tile>], i: usize, j: usize) -> Vec<(usize, usize)> {
@@ -71,7 +71,7 @@ fn get_all_moves(
             };
             match map[n.0][n.1] {
                 // Keep exploring
-                Tile::Empty | Tile::Me => queue.push_back((n, next.1 + 1)),
+                Tile::Empty | Tile::Entrance => queue.push_back((n, next.1 + 1)),
                 // Stop exploring
                 Tile::Door(c) => {
                     // Only can open a door if we have the key!
@@ -155,6 +155,83 @@ fn find_minimum_moves(map: &mut Vec<Vec<Tile>>, loc: (usize, usize), nkeys: usiz
     find_minimum_moves_with_keys(map, loc, nkeys, &mut keys, usize::MAX, &mut states, 0)
 }
 
+type FourStateEntry = (Vec<Vec<Tile>>, Vec<(usize, usize)>);
+fn find_minimum_four_with_keys(
+    map: &mut Vec<Vec<Tile>>,
+    locs: &mut Vec<(usize, usize)>,
+    nkeys: usize,
+    keys: &mut HashSet<char>,
+    mut min_so_far: usize,
+    // previously-seen states mapped to # steps
+    states: &mut HashMap<FourStateEntry, usize>,
+    steps: usize,
+) -> usize {
+    let key = (map.to_owned(), locs.to_owned());
+    if let Some(n) = states.get(&key) {
+        // don't bother -- can get here more quickly
+        if *n <= steps {
+            return min_so_far + 1;
+        }
+    }
+    if steps >= min_so_far {
+        // don't bother
+        return min_so_far + 1;
+    }
+    states.insert(key, steps);
+    if keys.len() == nkeys {
+        return steps;
+    }
+    // Get all moves
+    let mut moves = Vec::new();
+    for loc in locs.iter() {
+        moves.push(get_all_moves(map, *loc, keys));
+    }
+    // Repeatedly pick one move from each robot, apply move, then recurse and find which is best
+    for (i, robot) in moves.iter().enumerate() {
+        for entry in robot {
+            let Reverse(m) = entry;
+            let old = map[m.loc.0][m.loc.1];
+            if let Tile::Key(c) = old {
+                keys.insert(c);
+            }
+            map[m.loc.0][m.loc.1] = Tile::Empty;
+            let old_loc = locs[i];
+            locs[i] = m.loc;
+            let steps = find_minimum_four_with_keys(
+                map,
+                locs,
+                nkeys,
+                keys,
+                min_so_far,
+                states,
+                steps + m.steps,
+            );
+            locs[i] = old_loc;
+            if steps < min_so_far {
+                min_so_far = steps;
+            }
+            if let Tile::Key(c) = old {
+                keys.remove(&c);
+            }
+            map[m.loc.0][m.loc.1] = old;
+        }
+    }
+
+    assert_ne!(min_so_far, 0);
+    min_so_far
+}
+
+// Find the minimum number of moves from each of the four |locs|.
+fn find_minimum_with_four(
+    map: &mut Vec<Vec<Tile>>,
+    locs: &mut Vec<(usize, usize)>,
+    nkeys: usize,
+) -> usize {
+    let mut keys = HashSet::new();
+    let mut states = HashMap::new();
+    find_minimum_four_with_keys(map, locs, nkeys, &mut keys, usize::MAX, &mut states, 0)
+}
+
 fn main() {
     let args: Vec<String> = env::args().collect();
     assert_eq!(args.len(), 2);
@@ -177,12 +254,33 @@ fn main() {
                 }
                 '@' => {
                     loc = (i, j);
-                    Tile::Me
+                    Tile::Entrance
                 }
                 _ => panic!("invalid char {}", c),
             });
         }
         map.push(cur);
     }
-    println!("{:?}", find_minimum_moves(&mut map, loc, nkeys));
+
+    let mut clone = map.clone();
+    println!("{}", find_minimum_moves(&mut clone, loc, nkeys));
+
+    // update map
+    map[loc.0 - 1][loc.1 - 1] = Tile::Entrance;
+    map[loc.0 - 1][loc.1] = Tile::Wall;
+    map[loc.0 - 1][loc.1 + 1] = Tile::Entrance;
+    map[loc.0][loc.1 - 1] = Tile::Wall;
+    map[loc.0][loc.1] = Tile::Wall;
+    map[loc.0][loc.1 + 1] = Tile::Wall;
+    map[loc.0 + 1][loc.1 - 1] = Tile::Entrance;
+    map[loc.0 + 1][loc.1] = Tile::Wall;
+    map[loc.0 + 1][loc.1 + 1] = Tile::Entrance;
+
+    let mut locs = vec![
+        (loc.0 - 1, loc.1 - 1),
+        (loc.0 - 1, loc.1 + 1),
+        (loc.0 + 1, loc.1 - 1),
+        (loc.0 + 1, loc.1 + 1),
+    ];
+    println!("{}", find_minimum_with_four(&mut map, &mut locs, nkeys));
 }
