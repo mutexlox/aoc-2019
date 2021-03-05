@@ -80,6 +80,10 @@ path = "src/day17_scaffolding.rs"
 name = "day18"
 path = "src/day18_keys.rs"
 
+[[bin]]
+name = "day19"
+path = "src/day19_tractor.rs"
+
 [lib]
 name = "intcode"
 path = "src/intcode.rs"
