@@ -1,8 +1,9 @@
-use std::collections::{HashSet, VecDeque};
+use std::cmp::{Ord, Ordering, Reverse};
+use std::collections::{BinaryHeap, HashMap, HashSet, VecDeque};
 use std::env;
 use std::fs;
 
-#[derive(Copy, Clone, Eq, PartialEq)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug, Hash)]
 enum Tile {
     Empty,
     Wall,
@@ -29,9 +30,31 @@ fn get_neighbors(map: &[Vec<Tile>], i: usize, j: usize) -> Vec<(usize, usize)> {
     out
 }
 
+#[derive(Copy, Clone, Eq, PartialEq, Debug)]
+struct HeapElem {
+    loc: (usize, usize),
+    steps: usize,
+}
+
+impl Ord for HeapElem {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.steps.cmp(&other.steps)
+    }
+}
+
+impl PartialOrd for HeapElem {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
 // returns list of ((i, j), nsteps) representing all possible moves from the starting |loc|
-fn get_all_moves(map: &Vec<Vec<Tile>>, loc: (usize, usize)) -> Vec<((usize, usize), usize)> {
-    let mut out = Vec::new();
+fn get_all_moves(
+    map: &[Vec<Tile>],
+    loc: (usize, usize),
+    keys: &HashSet<char>,
+) -> BinaryHeap<Reverse<HeapElem>> {
+    let mut out = BinaryHeap::new();
 
     let mut queue = VecDeque::new();
     let mut visited = HashSet::new();
@@ -41,12 +64,23 @@ fn get_all_moves(map: &Vec<Vec<Tile>>, loc: (usize, usize)) -> Vec<((usize, usiz
             continue;
         }
         visited.insert(next.0);
-        for n in get_neighbors(map, next.0.0, next.0.1) {
+        for n in get_neighbors(map, next.0 .0, next.0 .1) {
+            let st = HeapElem {
+                loc: n,
+                steps: next.1 + 1,
+            };
             match map[n.0][n.1] {
                 // Keep exploring
                 Tile::Empty | Tile::Me => queue.push_back((n, next.1 + 1)),
-                // Stop exploring - for now
-                Tile::Door(_) | Tile::Key(_) => out.push((n, next.1 + 1)),
+                // Stop exploring
+                Tile::Door(c) => {
+                    // Only can open a door if we have the key!
+                    if keys.contains(&c) {
+                        queue.push_back((n, next.1 + 1));
+                    }
+                }
+                // Stop exploring
+                Tile::Key(_) => out.push(Reverse(st)),
                 // Nothing to do
                 Tile::Wall => {}
             }
@@ -56,48 +90,69 @@ fn get_all_moves(map: &Vec<Vec<Tile>>, loc: (usize, usize)) -> Vec<((usize, usiz
     out
 }
 
-// TODO: make this faster
-// ideas:
-//   1) cache BFSs across |get_all_moves| calls -- may be doing repeated work there
-//   2) cut off search when steps > min so far
-fn find_minimum_moves_with_keys(map: &mut Vec<Vec<Tile>>, loc: (usize, usize), nkeys: usize,
-                                keys: &mut HashSet<char>) -> usize {
-    let mut min_steps = 0;
-    if keys.len() == nkeys {
-        return 0;
-    }
-    // Get all moves, except those where we don't have the key.
-    let moves = get_all_moves(map, loc).iter().filter(|((i, j), _)| {
-        if let Tile::Door(c) = map[*i][*j] {
-            return keys.contains(&c);
+type StateEntry = (Vec<Vec<Tile>>, (usize, usize));
+fn find_minimum_moves_with_keys(
+    map: &mut Vec<Vec<Tile>>,
+    loc: (usize, usize),
+    nkeys: usize,
+    keys: &mut HashSet<char>,
+    mut min_so_far: usize,
+    // previously-seen states mapped to # steps
+    states: &mut HashMap<StateEntry, usize>,
+    steps: usize,
+) -> usize {
+    let key = (map.to_owned(), loc);
+    if let Some(n) = states.get(&key) {
+        // don't bother -- can get here more quickly
+        if *n <= steps {
+            return min_so_far + 1;
         }
-        return true;
-    }).cloned().collect::<Vec<_>>();
+    }
+    if steps >= min_so_far {
+        // don't bother
+        return min_so_far + 1;
+    }
+    states.insert(key, steps);
+    if keys.len() == nkeys {
+        return steps;
+    }
+    // Get all moves
+    let moves = get_all_moves(map, loc, keys);
     // then, of those, try each (recursively) and find which is best
-    for m in moves {
-        let old = map[m.0.0][m.0.1];
+    for entry in moves {
+        let Reverse(m) = entry;
+        let old = map[m.loc.0][m.loc.1];
         if let Tile::Key(c) = old {
             keys.insert(c);
         }
-        map[m.0.0][m.0.1] = Tile::Empty;
-        let steps = find_minimum_moves_with_keys(map, m.0, nkeys, keys) + m.1;
-        if min_steps == 0  || steps < min_steps {
-            min_steps = steps;
+        map[m.loc.0][m.loc.1] = Tile::Empty;
+        let steps = find_minimum_moves_with_keys(
+            map,
+            m.loc,
+            nkeys,
+            keys,
+            min_so_far,
+            states,
+            steps + m.steps,
+        );
+        if steps < min_so_far {
+            min_so_far = steps;
         }
         if let Tile::Key(c) = old {
             keys.remove(&c);
         }
-        map[m.0.0][m.0.1] = old;
+        map[m.loc.0][m.loc.1] = old;
     }
 
-    assert_ne!(min_steps, 0);
-    min_steps
+    assert_ne!(min_so_far, 0);
+    min_so_far
 }
 
 // Find the minimum number of moves to get all keys starting from |loc|.
 fn find_minimum_moves(map: &mut Vec<Vec<Tile>>, loc: (usize, usize), nkeys: usize) -> usize {
     let mut keys = HashSet::new();
-    find_minimum_moves_with_keys(map, loc, nkeys, &mut keys)
+    let mut states = HashMap::new();
+    find_minimum_moves_with_keys(map, loc, nkeys, &mut keys, usize::MAX, &mut states, 0)
 }
 
 fn main() {
