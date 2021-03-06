@@ -84,6 +84,10 @@ path = "src/day18_keys.rs"
 name = "day19"
 path = "src/day19_tractor.rs"
 
+[[bin]]
+name = "day20"
+path = "src/day20_maze.rs"
+
 [lib]
 name = "intcode"
 path = "src/intcode.rs"
