@@ -88,6 +88,10 @@ path = "src/day19_tractor.rs"
 name = "day20"
 path = "src/day20_maze.rs"
 
+[[bin]]
+name = "day21"
+path = "src/day21_springdroid.rs"
+
 [lib]
 name = "intcode"
 path = "src/intcode.rs"
