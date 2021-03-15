@@ -101,6 +101,10 @@ path = "src/day22_shuffle.rs"
 name = "day23"
 path = "src/day23_network.rs"
 
+[[bin]]
+name = "day24"
+path = "src/day24_bug_state_mach.rs"
+
 [lib]
 name = "intcode"
 path = "src/intcode.rs"
