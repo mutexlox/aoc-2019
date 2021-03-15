@@ -59,11 +59,7 @@ fn build_intermediate(lines: &[Vec<char>]) -> Vec<Vec<Tile>> {
 }
 
 // Get all immediate neighbors of a tile (i.e. not following portals)
-fn get_immediate_neighbors(
-    intermediate: &[Vec<Tile>],
-    i: usize,
-    j: usize,
-) -> Vec<(usize, usize)> {
+fn get_immediate_neighbors(intermediate: &[Vec<Tile>], i: usize, j: usize) -> Vec<(usize, usize)> {
     let mut out_pos = Vec::new();
     if i > 0 {
         out_pos.push((i - 1, j));
