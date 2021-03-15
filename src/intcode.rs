@@ -69,6 +69,15 @@ pub fn eval_with_input(
     input: Receiver<i64>,
     output: Sender<i64>,
 ) -> Receiver<i64> {
+    eval_with_input_and_requester(ints, input, output, None)
+}
+
+pub fn eval_with_input_and_requester(
+    ints: &mut HashMap<usize, i64>,
+    input: Receiver<i64>,
+    output: Sender<i64>,
+    requester: Option<Sender<()>>, // indicates that we want a value
+) -> Receiver<i64> {
     let mut pc = 0;
     let mut relative_base = 0;
     while pc < ints.len() {
@@ -100,7 +109,22 @@ pub fn eval_with_input(
             3 => {
                 // get input
                 let idx = get_params(pc, ints, &[ParamTypes::INDEX], relative_base)[0] as usize;
-                ints.insert(idx, input.recv().unwrap());
+                let val = match &requester {
+                    None => match input.recv() {
+                        Err(_) => return input,
+                        Ok(x) => x,
+                    },
+                    Some(s) => {
+                        if let Err(_) = s.send(()) {
+                            return input;
+                        }
+                        match input.recv() {
+                            Err(_) => return input,
+                            Ok(x) => x,
+                        }
+                    }
+                };
+                ints.insert(idx, val);
                 pc += 2;
             }
             4 => {

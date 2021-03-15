@@ -97,6 +97,10 @@ path = "src/day21_springdroid.rs"
 name = "day22"
 path = "src/day22_shuffle.rs"
 
+[[bin]]
+name = "day23"
+path = "src/day23_network.rs"
+
 [lib]
 name = "intcode"
 path = "src/intcode.rs"
