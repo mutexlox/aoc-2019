@@ -28,17 +28,17 @@ fn increment(cards: &mut [i32], n: usize) {
     cards.copy_from_slice(&tmp);
 }
 
-fn apply_shuffle(lines: &Vec<&str>, cards: &mut [i32]) {
+fn apply_shuffle(lines: &[&str], cards: &mut [i32]) {
     let inc_regex = Regex::new(r"^deal with increment (\d+)$").unwrap();
     let cut_regex = Regex::new(r"^cut (-?\d+)$").unwrap();
-    let rev_regex = Regex::new(r"^deal into new stack$").unwrap();
+    let rev_text = "deal into new stack";
     for l in lines {
         if let Some(c) = inc_regex.captures(l) {
             increment(cards, c[1].parse::<usize>().unwrap());
         } else if let Some(c) = cut_regex.captures(l) {
             cut(cards, c[1].parse::<i32>().unwrap());
         } else {
-            assert!(rev_regex.is_match(l));
+            assert!(rev_text == *l);
             deal_new_stack(cards);
         }
     }
@@ -55,8 +55,8 @@ fn main() {
         .collect::<Vec<_>>();
 
     let mut deck = [0; 10007];
-    for i in 0..deck.len() {
-        deck[i] = i as i32;
+    for (i, item) in deck.iter_mut().enumerate() {
+        *item = i as i32;
     }
 
     apply_shuffle(&lines, &mut deck);

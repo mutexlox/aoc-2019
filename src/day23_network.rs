@@ -59,7 +59,7 @@ fn run_nics(ints: &HashMap<usize, i64>, part_one: bool) -> i64 {
                 }
             }
 
-            if let Ok(_) = meta_receivers[i].try_recv() {
+            if meta_receivers[i].try_recv().is_ok() {
                 if let Some(x) = pending[i].pop_front() {
                     senders[i].send(x).unwrap();
                     all_waiting = false;

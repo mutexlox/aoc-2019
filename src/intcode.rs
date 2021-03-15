@@ -115,7 +115,7 @@ pub fn eval_with_input_and_requester(
                         Ok(x) => x,
                     },
                     Some(s) => {
-                        if let Err(_) = s.send(()) {
+                        if s.send(()).is_err() {
                             return input;
                         }
                         match input.recv() {
